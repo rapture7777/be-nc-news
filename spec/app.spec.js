@@ -116,9 +116,40 @@ describe('/api', () => {
           });
       });
     });
+    describe('PATCH', () => {
+      it('status: 201 patches article with updated number of votes and returns the patched article', () => {
+        return request(app)
+          .patch('/api/articles/1')
+          .send({ inc_votes: 1 })
+          .expect(201)
+          .then(({ body: { article } }) => {
+            console.log(article);
+            expect(article).to.be.an('object');
+            expect(article).to.have.keys(
+              'author',
+              'title',
+              'article_id',
+              'body',
+              'topic',
+              'created_at',
+              'votes',
+              'comment_count'
+            );
+            expect(article.votes).to.not.equal(100);
+          });
+      });
+      it('status: 404 id not found', () => {
+        return request(app)
+          .get('/api/articles/666')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Not found...');
+          });
+      });
+    });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {
-        const methods = ['post', 'patch', 'put', 'delete'];
+        const methods = ['post', 'put', 'delete'];
         const promises = methods.map(function(method) {
           return request(app)
             [method]('/api/articles/1')

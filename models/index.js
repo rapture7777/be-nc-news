@@ -36,3 +36,11 @@ exports.fetchArticle = ({ article_id }) => {
       else return article[0];
     });
 };
+
+exports.updateArticle = ({ article_id }, { inc_votes }) => {
+  return knex('articles')
+    .update('votes', '+=', inc_votes)
+    .where('article_id', article_id)
+    .returning('*')
+    .then(article => article[0]);
+};
