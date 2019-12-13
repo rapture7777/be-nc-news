@@ -9,12 +9,12 @@ const {
 } = require('./errors');
 
 app.use(express.json());
-app.use('/api', apiRouter);
 
-app.all('/*', handle404s);
+app.use('/api', apiRouter);
 
 app.use(handle400s);
 app.use(handleDB404s);
 app.use(handle500s);
+app.all('/*', handle404s);
 
 module.exports = app;
