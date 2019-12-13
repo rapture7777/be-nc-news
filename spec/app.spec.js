@@ -76,7 +76,52 @@ describe('/api', () => {
         const methods = ['post', 'patch', 'put', 'delete'];
         const promises = methods.map(function(method) {
           return request(app)
-            [method]('/api/users/1')
+            [method]('/api/users/john')
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal('Invalid method...');
+            });
+        });
+        return Promise.all(promises);
+      });
+    });
+  });
+  describe('/articles/:article_id', () => {
+    describe('GET', () => {
+      it('status: 200 returns a article object containing author, title, article_id, body, topic, created_at, votes and comment_count for a specified article', () => {
+        return request(app)
+          .get('/api/articles/1')
+          .expect(200)
+          .then(({ body: { article } }) => {
+            expect(article).to.be.an('object');
+            expect(article).to.have.keys(
+              'author',
+              'title',
+              'article_id',
+              'body',
+              'topic',
+              'created_at',
+              'votes',
+              'comment_count'
+            );
+            expect(article.comment_count).to.equal('13');
+          });
+      });
+      it('status: 404 id not found', () => {
+        return request(app)
+          .get('/api/articles/666')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Not found...');
+          });
+      });
+    });
+    describe('INVALID METHODS', () => {
+      it('status: 405 invalid method used', () => {
+        const methods = ['post', 'patch', 'put', 'delete'];
+        const promises = methods.map(function(method) {
+          return request(app)
+            [method]('/api/articles/1')
             .expect(405)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal('Invalid method...');

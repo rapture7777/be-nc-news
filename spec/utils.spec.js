@@ -23,6 +23,7 @@ describe('formatDates', () => {
         created_at: formattedTime
       }
     ]);
+    expect(formatDates(objArr)[0].created_at).to.be.instanceof(Date);
   });
   it('takes an array of multiple objects with a created_at key and converts their values to JS time', () => {
     let time = new Date().getTime();
