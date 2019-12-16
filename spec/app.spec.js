@@ -25,6 +25,18 @@ describe('ERROR: Invalid Path', () => {
   });
 });
 describe('/api', () => {
+  describe('/', () => {
+    describe('GET', () => {
+      it('status 200 returns the endpoints', () => {
+        return request(app)
+          .get('/api')
+          .expect(200)
+          .then(({ body: { endpoints } }) => {
+            expect(endpoints).to.be.an('object');
+          });
+      });
+    });
+  });
   describe('/topics', () => {
     describe('GET', () => {
       it('status: 200 returns all topics with slug and description keys', () => {
