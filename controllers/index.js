@@ -2,7 +2,10 @@ const {
   fetchTopics,
   fetchUser,
   fetchArticle,
-  updateArticle
+  updateArticle,
+  createComment,
+  fetchComments,
+  fetchArticles
 } = require('../models');
 
 exports.getTopics = (req, res, next) => {
@@ -33,6 +36,30 @@ exports.patchArticle = (req, res, next) => {
   updateArticle(req.params, req.body)
     .then(article => {
       res.status(201).send({ article });
+    })
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  createComment(req.params, req.body)
+    .then(comment => {
+      res.status(201).send({ comment });
+    })
+    .catch(next);
+};
+
+exports.getComments = (req, res, next) => {
+  fetchComments(req.params, req.query)
+    .then(comments => {
+      res.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+exports.getArticles = (req, res, next) => {
+  fetchArticles(req.query)
+    .then(articles => {
+      res.status(200).send({ articles });
     })
     .catch(next);
 };

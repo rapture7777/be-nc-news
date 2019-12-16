@@ -11,7 +11,8 @@ exports.fetchUser = ({ username }) => {
     .select('username', 'avatar_url', 'name')
     .where('username', username)
     .then(user => {
-      if (!user.length) return Promise.reject({ msg: 'Not found...' });
+      if (!user.length)
+        return Promise.reject({ status: 404, msg: 'User not found...' });
       else return user;
     });
 };
@@ -49,4 +50,56 @@ exports.updateArticle = ({ article_id }, { inc_votes }) => {
         .returning('*');
     })
     .then(article => article[0]);
+};
+
+exports.createComment = ({ article_id }, comment) => {
+  let newComment = {
+    author: comment.username,
+    article_id: article_id,
+    body: comment.body
+  };
+  return knex('comments')
+    .insert(newComment)
+    .returning('*')
+    .then(comment => comment[0]);
+};
+
+exports.fetchComments = (
+  { article_id },
+  { sort_by = 'created_at', order = 'desc' }
+) => {
+  return knex('comments')
+    .select('comment_id', 'votes', 'created_at', 'author', 'body')
+    .where('article_id', article_id)
+    .orderBy(sort_by, order)
+    .then(comments => {
+      if (!comments.length) return Promise.reject({ msg: 'Not found...' });
+      else return comments;
+    });
+};
+
+exports.fetchArticles = ({
+  sort_by = 'created_at',
+  order = 'desc',
+  author,
+  topic
+}) => {
+  return knex('articles')
+    .select(
+      'articles.author',
+      'articles.title',
+      'articles.article_id',
+      'topic',
+      'articles.created_at',
+      'articles.votes'
+    )
+    .join('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id', 'comments.article_id')
+    .count({ comment_count: 'comments.article_id' })
+    .orderBy(`articles.${sort_by}`, order)
+    .modify(articles => {
+      if (author) articles.where('articles.author', author);
+      if (topic) articles.where('articles.topic', topic);
+    })
+    .then(articles => articles);
 };
