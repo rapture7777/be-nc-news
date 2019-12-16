@@ -33,7 +33,8 @@ exports.fetchArticle = ({ article_id }) => {
     .groupBy('comments.article_id', 'articles.article_id')
     .count({ comment_count: 'comments.article_id' })
     .then(article => {
-      if (!article.length) return Promise.reject({ msg: 'Not found...' });
+      if (!article.length)
+        return Promise.reject({ status: 404, msg: 'Article not found...' });
       else return article[0];
     });
 };
@@ -73,7 +74,8 @@ exports.fetchComments = (
     .where('article_id', article_id)
     .orderBy(sort_by, order)
     .then(comments => {
-      if (!comments.length) return Promise.reject({ msg: 'Not found...' });
+      if (!comments.length)
+        return Promise.reject({ status: 404, msg: 'Comment(s) not found...' });
       else return comments;
     });
 };
@@ -89,17 +91,39 @@ exports.fetchArticles = ({
       'articles.author',
       'articles.title',
       'articles.article_id',
-      'topic',
+      'articles.topic',
       'articles.created_at',
       'articles.votes'
     )
-    .join('comments', 'articles.article_id', 'comments.article_id')
-    .groupBy('articles.article_id', 'comments.article_id')
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id')
     .count({ comment_count: 'comments.article_id' })
     .orderBy(`articles.${sort_by}`, order)
     .modify(articles => {
+      if (topic) articles.where('topic', topic);
       if (author) articles.where('articles.author', author);
-      if (topic) articles.where('articles.topic', topic);
     })
     .then(articles => articles);
+};
+
+exports.updateComment = ({ comment_id }, { inc_votes }) => {
+  return knex('comments')
+    .select('votes')
+    .where('comment_id', comment_id)
+    .then(votes => {
+      if (!votes.length)
+        return Promise.reject({ status: 404, msg: 'Comment not found...' });
+      let newVotes = votes[0].votes + inc_votes;
+      return knex('comments')
+        .where('comment_id', comment_id)
+        .update('votes', newVotes)
+        .returning('*');
+    })
+    .then(comment => comment[0]);
+};
+
+exports.removeComment = ({ comment_id }) => {
+  return knex('comments')
+    .delete()
+    .where('comment_id', comment_id);
 };
