@@ -39,8 +39,14 @@ exports.fetchArticle = ({ article_id }) => {
 
 exports.updateArticle = ({ article_id }, { inc_votes }) => {
   return knex('articles')
-    .update('votes', '+=', inc_votes)
+    .select('votes')
     .where('article_id', article_id)
-    .returning('*')
+    .then(votes => {
+      let newVotes = votes[0].votes + inc_votes;
+      return knex('articles')
+        .where('article_id', article_id)
+        .update('votes', newVotes)
+        .returning('*');
+    })
     .then(article => article[0]);
 };

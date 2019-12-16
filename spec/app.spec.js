@@ -123,7 +123,6 @@ describe('/api', () => {
           .send({ inc_votes: 1 })
           .expect(201)
           .then(({ body: { article } }) => {
-            console.log(article);
             expect(article).to.be.an('object');
             expect(article).to.have.keys(
               'author',
@@ -132,8 +131,7 @@ describe('/api', () => {
               'body',
               'topic',
               'created_at',
-              'votes',
-              'comment_count'
+              'votes'
             );
             expect(article.votes).to.not.equal(100);
           });

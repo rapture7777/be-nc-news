@@ -32,7 +32,6 @@ exports.getArticle = (req, res, next) => {
 exports.patchArticle = (req, res, next) => {
   updateArticle(req.params, req.body)
     .then(article => {
-      console.log(article);
       res.status(201).send({ article });
     })
     .catch(next);
