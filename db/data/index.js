@@ -4,7 +4,8 @@ const devData = require('./development-data');
 
 let dataObj = {
   test: testData,
-  development: devData
+  development: devData,
+  production: devData
 };
 
 module.exports = dataObj[ENV];
