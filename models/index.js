@@ -13,24 +13,16 @@ exports.fetchUser = ({ username }) => {
     .then(user => {
       if (!user.length)
         return Promise.reject({ status: 404, msg: 'User not found...' });
-      else return user;
+      else return user[0];
     });
 };
 
 exports.fetchArticle = ({ article_id }) => {
   return knex('articles')
-    .select(
-      'articles.author',
-      'title',
-      'articles.article_id',
-      'articles.body',
-      'topic',
-      'articles.created_at',
-      'articles.votes'
-    )
+    .select('articles.*')
     .where('articles.article_id', article_id)
-    .join('comments', 'comments.article_id', 'articles.article_id')
-    .groupBy('comments.article_id', 'articles.article_id')
+    .leftJoin('comments', 'comments.article_id', 'articles.article_id')
+    .groupBy('articles.article_id')
     .count({ comment_count: 'comments.article_id' })
     .then(article => {
       if (!article.length)
@@ -74,9 +66,19 @@ exports.fetchComments = (
     .where('article_id', article_id)
     .orderBy(sort_by, order)
     .then(comments => {
-      if (!comments.length)
-        return Promise.reject({ status: 404, msg: 'Comment(s) not found...' });
-      else return comments;
+      if (!comments.length) {
+        return knex('articles')
+          .select('*')
+          .where('article_id', article_id)
+          .then(article => {
+            if (article.length !== 0) return comments;
+            else
+              return Promise.reject({
+                status: 404,
+                msg: 'Comment(s) not found...'
+              });
+          });
+      } else return comments;
     });
 };
 
@@ -133,20 +135,10 @@ exports.updateComment = ({ comment_id }, { inc_votes }) => {
 exports.removeComment = ({ comment_id }) => {
   return knex('comments')
     .delete()
-    .where('comment_id', comment_id);
-};
-
-const topicExists = topic => {
-  return knex('topics')
-    .select('*')
-    .where('slug', topic);
-};
-
-const authorExists = author => {
-  return knex('users')
-    .select('*')
-    .where('username', author)
-    .then(returned => {
-      return returned.length !== 0 ? true : false;
+    .where('comment_id', comment_id)
+    .then(deleteCount => {
+      if (deleteCount === 0)
+        return Promise.reject({ status: 404, msg: 'Comment not found...' });
+      else return deleteCount;
     });
 };

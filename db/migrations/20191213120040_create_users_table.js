@@ -5,7 +5,7 @@ exports.up = function(knex) {
       .unique()
       .primary();
     usersTable.string('avatar_url');
-    usersTable.string('name');
+    usersTable.string('name').notNullable();
   });
 };
 

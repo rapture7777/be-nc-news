@@ -7,8 +7,7 @@ const {
   fetchComments,
   fetchArticles,
   updateComment,
-  removeComment,
-  fetchEndpoints
+  removeComment
 } = require('../models');
 const endpoints = require('../endpoints.json');
 
@@ -39,7 +38,7 @@ exports.getArticle = (req, res, next) => {
 exports.patchArticle = (req, res, next) => {
   updateArticle(req.params, req.body)
     .then(article => {
-      res.status(201).send({ article });
+      res.status(200).send({ article });
     })
     .catch(next);
 };
@@ -71,18 +70,14 @@ exports.getArticles = (req, res, next) => {
 exports.patchComment = (req, res, next) => {
   updateComment(req.params, req.body)
     .then(comment => {
-      res.status(201).send({ comment });
+      res.status(200).send({ comment });
     })
     .catch(next);
 };
 
 exports.deleteComment = (req, res, next) => {
   removeComment(req.params)
-    .then(deleteCount => {
-      if (deleteCount === 0)
-        return Promise.reject({ status: 404, msg: 'Comment not found...' });
-      else res.sendStatus(204);
-    })
+    .then(() => res.sendStatus(204))
     .catch(next);
 };
 

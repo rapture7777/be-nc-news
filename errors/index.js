@@ -1,5 +1,5 @@
 exports.handle400s = (err, req, res, next) => {
-  const errorCodes = ['23503', '23502', '22P02', '42703'];
+  const errorCodes = ['23502', '22P02', '42703'];
   if (errorCodes.includes(err.code))
     res.status(400).send({ msg: 'Bad request...' });
   else next(err);
@@ -7,6 +7,7 @@ exports.handle400s = (err, req, res, next) => {
 
 exports.handleDB404s = (err, req, res, next) => {
   if (err.status === 404) res.status(404).send({ msg: err.msg });
+  else if (err.code === '23503') res.status(404).send({ msg: 'Not found...' });
   else next(err);
 };
 

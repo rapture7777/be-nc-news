@@ -71,9 +71,9 @@ describe('/api', () => {
           .get('/api/users/butter_bridge')
           .expect(200)
           .then(({ body: { user } }) => {
-            expect(user).to.be.an('array');
-            expect(user[0]).to.have.keys('username', 'avatar_url', 'name');
-            expect(user[0].username).to.equal('butter_bridge');
+            expect(user).to.be.an('object');
+            expect(user).to.have.keys('username', 'avatar_url', 'name');
+            expect(user.username).to.equal('butter_bridge');
           });
       });
       it('status: 404 username not found', () => {
@@ -139,11 +139,11 @@ describe('/api', () => {
       });
     });
     describe('PATCH', () => {
-      it('status: 201 patches article with updated number of votes and returns the patched article', () => {
+      it('status: 200 patches article with updated number of votes and returns the patched article', () => {
         return request(app)
           .patch('/api/articles/1')
           .send({ inc_votes: 1 })
-          .expect(201)
+          .expect(200)
           .then(({ body: { article } }) => {
             expect(article).to.be.an('object');
             expect(article).to.have.keys(
@@ -225,24 +225,23 @@ describe('/api', () => {
             );
           });
       });
-      it('status: 400 article_id not present in linked articles_table', () => {
+      it('status: 404 article_id does not exist', () => {
         return request(app)
           .post('/api/articles/666/comments')
           .send({
             username: 'butter_bridge',
             body: 'I think this article is a pile of crap.'
           })
-          .expect(400)
+          .expect(404)
           .then(({ body: { msg } }) => {
-            expect(msg).to.equal('Bad request...');
+            expect(msg).to.equal('Not found...');
           });
       });
       it('status: 400 request body is incorrectly formatted', () => {
         return request(app)
           .post('/api/articles/1/comments')
           .send({
-            username: 123,
-            bod: 'I think this article is a pile of crap.'
+            username: 123
           })
           .expect(400)
           .then(({ body: { msg } }) => {
@@ -308,6 +307,15 @@ describe('/api', () => {
               'created_at',
               'body'
             );
+          });
+      });
+      it('status: 200 returns an empty array when the article exists but has no comments', () => {
+        return request(app)
+          .get('/api/articles/2/comments')
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).to.be.an('array');
+            expect(comments).to.deep.equal([]);
           });
       });
       it('status: 400 invalid article_id', () => {
@@ -416,11 +424,11 @@ describe('/api', () => {
   });
   describe('/comments/:comment_id', () => {
     describe('PATCH', () => {
-      it('status: 201 updates the votes value of a specified comment and returns the updated comment', () => {
+      it('status: 200 updates the votes value of a specified comment and returns the updated comment', () => {
         return request(app)
           .patch('/api/comments/1')
           .send({ inc_votes: 1 })
-          .expect(201)
+          .expect(200)
           .then(({ body: { comment } }) => {
             expect(comment).to.be.an('object');
             expect(comment.votes).to.equal(17);
