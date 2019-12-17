@@ -388,6 +388,16 @@ describe('/api', () => {
             expect(msg).to.equal('Bad request...');
           });
       });
+      it('status: 404 topic or author query does not exist', () => {
+        return request(app)
+          .get('/api/articles?topic=zzzzzzz')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal(
+              'Query value does not exist or no articles exist for specified query...'
+            );
+          });
+      });
     });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {

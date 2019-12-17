@@ -103,7 +103,15 @@ exports.fetchArticles = ({
       if (topic) articles.where('topic', topic);
       if (author) articles.where('articles.author', author);
     })
-    .then(articles => articles);
+    .then(articles => {
+      return articles.length
+        ? articles
+        : Promise.reject({
+            status: 404,
+            msg:
+              'Query value does not exist or no articles exist for specified query...'
+          });
+    });
 };
 
 exports.updateComment = ({ comment_id }, { inc_votes }) => {
@@ -126,4 +134,19 @@ exports.removeComment = ({ comment_id }) => {
   return knex('comments')
     .delete()
     .where('comment_id', comment_id);
+};
+
+const topicExists = topic => {
+  return knex('topics')
+    .select('*')
+    .where('slug', topic);
+};
+
+const authorExists = author => {
+  return knex('users')
+    .select('*')
+    .where('username', author)
+    .then(returned => {
+      return returned.length !== 0 ? true : false;
+    });
 };
