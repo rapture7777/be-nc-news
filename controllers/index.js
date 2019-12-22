@@ -7,7 +7,8 @@ const {
   fetchComments,
   fetchArticles,
   updateComment,
-  removeComment
+  removeComment,
+  createArticle
 } = require('../models');
 const endpoints = require('../endpoints.json');
 
@@ -31,6 +32,14 @@ exports.getArticle = (req, res, next) => {
   fetchArticle(req.params)
     .then(article => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.postArticle = (req, res, next) => {
+  createArticle(req.body)
+    .then(article => {
+      res.status(201).send({ article });
     })
     .catch(next);
 };

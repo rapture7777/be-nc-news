@@ -31,59 +31,6 @@ exports.fetchArticle = ({ article_id }) => {
     });
 };
 
-exports.updateArticle = ({ article_id }, { inc_votes }) => {
-  return knex('articles')
-    .select('votes')
-    .where('article_id', article_id)
-    .then(votes => {
-      let newVotes = votes[0].votes + inc_votes;
-      return knex('articles')
-        .where('article_id', article_id)
-        .update('votes', newVotes)
-        .returning('*');
-    })
-    .then(article => article[0]);
-};
-
-exports.createComment = ({ article_id }, comment) => {
-  let newComment = {
-    author: comment.username,
-    article_id: article_id,
-    body: comment.body
-  };
-  return knex('comments')
-    .insert(newComment)
-    .returning('*')
-    .then(comment => comment[0]);
-};
-
-exports.fetchComments = (
-  { article_id },
-  { sort_by = 'created_at', order = 'desc', limit = 10, page = 1 }
-) => {
-  return knex('comments')
-    .select('comment_id', 'votes', 'created_at', 'author', 'body')
-    .where('article_id', article_id)
-    .orderBy(sort_by, order)
-    .limit(limit)
-    .offset(limit * page - limit)
-    .then(comments => {
-      if (!comments.length) {
-        return knex('articles')
-          .select('*')
-          .where('article_id', article_id)
-          .then(article => {
-            if (article.length !== 0) return comments;
-            else
-              return Promise.reject({
-                status: 404,
-                msg: 'Comment(s) not found...'
-              });
-          });
-      } else return comments;
-    });
-};
-
 exports.fetchArticles = ({
   sort_by = 'created_at',
   order = 'desc',
@@ -148,6 +95,66 @@ exports.fetchArticles = ({
           });
     });
   return Promise.all([fullArticles, limitedArticles]);
+};
+
+exports.updateArticle = ({ article_id }, { inc_votes }) => {
+  return knex('articles')
+    .select('votes')
+    .where('article_id', article_id)
+    .then(votes => {
+      let newVotes = votes[0].votes + inc_votes;
+      return knex('articles')
+        .where('article_id', article_id)
+        .update('votes', newVotes)
+        .returning('*');
+    })
+    .then(article => article[0]);
+};
+
+exports.createArticle = article => {
+  return knex('articles')
+    .insert(article)
+    .returning('*')
+    .then(article => article[0]);
+};
+
+exports.createComment = ({ article_id }, comment) => {
+  let newComment = {
+    author: comment.username,
+    article_id: article_id,
+    body: comment.body
+  };
+  return knex('comments')
+    .insert(newComment)
+    .returning('*')
+    .then(comment => comment[0]);
+};
+
+exports.fetchComments = (
+  { article_id },
+  { sort_by = 'created_at', order = 'desc', limit = 10, page = 1 }
+) => {
+  return knex('comments')
+    .select('comment_id', 'votes', 'created_at', 'author', 'body')
+    .where('article_id', article_id)
+    .orderBy(sort_by, order)
+    .limit(limit)
+    .offset(limit * page - limit)
+    .then(comments => {
+      if (!comments.length) {
+        return knex('articles')
+          .select('*')
+          .where('article_id', article_id)
+          .then(article => {
+            if (article.length !== 0) return comments;
+            else
+              return Promise.reject({
+                status: 404,
+                msg: 'Comment(s) not found...'
+              });
+          });
+      } else return comments;
+    });
 };
 
 exports.updateComment = ({ comment_id }, { inc_votes }) => {

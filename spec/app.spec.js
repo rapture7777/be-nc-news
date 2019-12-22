@@ -436,6 +436,43 @@ describe('/api', () => {
           });
       });
     });
+    describe('POST', () => {
+      it('status: 201 adds an article to the articles table', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            title: 'test_article',
+            body: 'Rubbish.',
+            topic: 'mitch',
+            author: 'butter_bridge'
+          })
+          .expect(201)
+          .then(({ body: { article } }) => {
+            expect(article).to.be.an('object');
+            expect(article).to.have.keys(
+              'article_id',
+              'author',
+              'title',
+              'body',
+              'topic',
+              'votes',
+              'created_at'
+            );
+            expect(article.body).to.equal('Rubbish.');
+          });
+      });
+      it('status: 400 request body is incorrectly formatted', () => {
+        return request(app)
+          .post('/api/articles')
+          .send({
+            author: 123
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+    });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {
         const methods = ['patch', 'put', 'delete'];
