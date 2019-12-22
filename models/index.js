@@ -118,6 +118,17 @@ exports.createArticle = article => {
     .then(article => article[0]);
 };
 
+exports.removeArticle = ({ article_id }) => {
+  return knex('articles')
+    .delete()
+    .where('article_id', article_id)
+    .then(deleteCount => {
+      if (deleteCount === 0)
+        return Promise.reject({ status: 404, msg: 'Article not found...' });
+      else return deleteCount;
+    });
+};
+
 exports.createComment = ({ article_id }, comment) => {
   let newComment = {
     author: comment.username,

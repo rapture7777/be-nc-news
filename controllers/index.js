@@ -8,7 +8,8 @@ const {
   fetchArticles,
   updateComment,
   removeComment,
-  createArticle
+  createArticle,
+  removeArticle
 } = require('../models');
 const endpoints = require('../endpoints.json');
 
@@ -48,6 +49,14 @@ exports.patchArticle = (req, res, next) => {
   updateArticle(req.params, req.body)
     .then(article => {
       res.status(200).send({ article });
+    })
+    .catch(next);
+};
+
+exports.deleteArticle = (req, res, next) => {
+  removeArticle(req.params)
+    .then(() => {
+      res.sendStatus(204);
     })
     .catch(next);
 };

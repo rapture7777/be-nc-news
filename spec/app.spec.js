@@ -185,9 +185,32 @@ describe('/api', () => {
           });
       });
     });
+    describe('DELETE', () => {
+      it('status 204: successfully deletes article by ID and all associated comments', () => {
+        return request(app)
+          .delete('/api/articles/1')
+          .expect(204);
+      });
+      it('status: 400 invalid article_id', () => {
+        return request(app)
+          .delete('/api/articles/abc')
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+      it('status: 404 article not found', () => {
+        return request(app)
+          .delete('/api/articles/888')
+          .expect(404)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Article not found...');
+          });
+      });
+    });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {
-        const methods = ['post', 'put', 'delete'];
+        const methods = ['post', 'put'];
         const promises = methods.map(function(method) {
           return request(app)
             [method]('/api/articles/1')
