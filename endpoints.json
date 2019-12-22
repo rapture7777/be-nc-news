@@ -9,9 +9,42 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "users": [
+        { "username": "123", "avatar_url": ".co.uk", "name": "Alan" },
+        {
+          "username": "124",
+          "avatar_url": ".com",
+          "name": "Area"
+        }
+      ]
+    }
+  },
+  "POST /api/users": {
+    "description": "posts a user to the users table and returns the posted user as an object",
+    "parameters": [],
+    "queries": [],
+    "exampleRequestBody": {
+      "username": "abc124",
+      "avatar_url": ".com",
+      "name": "Area"
+    },
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "abc124",
+          "avatar_url": ".com",
+          "name": "Area"
+        }
+      ]
+    }
+  },
   "GET /api/articles": {
     "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["author", "topic", "sort_by", "order", "limit", "page"],
     "exampleResponse": {
       "articles": [
         {
@@ -20,6 +53,30 @@
           "author": "weegembump",
           "body": "Text from the article..",
           "created_at": 1527695953341
+        }
+      ]
+    }
+  },
+  "POST /api/articles": {
+    "description": "posts an article to the articles table and returns the posted article as an object",
+    "parameters": [],
+    "queries": [],
+    "exampleRequestBody": {
+      "title": "example article",
+      "body": "Example content.",
+      "topic": "**only an existing topic slugs within topics table entered here will result in a successful post**",
+      "author": "**only an existing username within the users table entered here will result in a successful post**"
+    },
+    "exampleResponse": {
+      "article": [
+        {
+          "article_id": 7,
+          "author": "user123",
+          "title": "example article",
+          "body": "Example content.",
+          "topic": "topic123",
+          "votes": 0,
+          "created_at": 123356565768686
         }
       ]
     }
@@ -62,8 +119,13 @@
       ]
     }
   },
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes the specified article and all associated comments by article_id. Responds only with status 204 when successful.",
+    "parameters": "article_id",
+    "queries": []
+  },
   "POST /api/articles/:article_id/comments": {
-    "description": "posts a comment to the comments table with referencing the article_id specified and returns the comment object",
+    "description": "posts a comment to the comments table referencing the article_id specified and returns the comment object",
     "parameters": "article_id",
     "queries": [],
     "exampleRequestBody": {
@@ -87,8 +149,10 @@
     "description": "gets all comments associated with the specified article_id and returns an array",
     "parameters": "article_id",
     "queries": [
-      "'sort_by' - defaults to 'created_at'",
-      "'order' defaults to 'desc'"
+      "sort_by - defaults to created_at",
+      "order - defaults to 'desc",
+      "limit - defaults to 10",
+      "page - defaults to 1"
     ],
     "exampleResponse": {
       "comments": [
