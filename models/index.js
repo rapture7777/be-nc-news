@@ -194,3 +194,10 @@ exports.removeComment = ({ comment_id }) => {
       else return deleteCount;
     });
 };
+
+exports.createTopic = topic => {
+  return knex('topics')
+    .insert(topic)
+    .returning('*')
+    .then(topic => topic[0]);
+};

@@ -9,7 +9,8 @@ const {
   updateComment,
   removeComment,
   createArticle,
-  removeArticle
+  removeArticle,
+  createTopic
 } = require('../models');
 const endpoints = require('../endpoints.json');
 
@@ -103,4 +104,12 @@ exports.deleteComment = (req, res, next) => {
 
 exports.getEndpoints = (req, res, next) => {
   res.status(200).send({ endpoints });
+};
+
+exports.postTopic = (req, res, next) => {
+  createTopic(req.body)
+    .then(topic => {
+      res.status(201).send({ topic });
+    })
+    .catch(next);
 };

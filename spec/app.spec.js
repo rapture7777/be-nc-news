@@ -49,9 +49,37 @@ describe('/api', () => {
           });
       });
     });
+    describe('POST', () => {
+      it('status: 201 adds a topic to the topics table', () => {
+        return request(app)
+          .post('/api/topics')
+          .send({
+            slug: 'testslug',
+            description: 'testdescription'
+          })
+          .expect(201)
+          .then(({ body: { topic } }) => {
+            expect(topic).to.be.an('object');
+            expect(topic).to.have.keys('slug', 'description');
+            expect(topic.slug).to.equal('testslug');
+          });
+      });
+      it('status: 400 request body is incorrectly formatted', () => {
+        return request(app)
+          .post('/api/topics')
+          .send({
+            slug: 'mitch',
+            description: 123
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+    });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {
-        const methods = ['post', 'patch', 'put', 'delete'];
+        const methods = ['patch', 'put', 'delete'];
         const promises = methods.map(function(method) {
           return request(app)
             [method]('/api/topics')
