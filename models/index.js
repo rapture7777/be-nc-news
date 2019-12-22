@@ -59,12 +59,14 @@ exports.createComment = ({ article_id }, comment) => {
 
 exports.fetchComments = (
   { article_id },
-  { sort_by = 'created_at', order = 'desc' }
+  { sort_by = 'created_at', order = 'desc', limit = 10, page = 1 }
 ) => {
   return knex('comments')
     .select('comment_id', 'votes', 'created_at', 'author', 'body')
     .where('article_id', article_id)
     .orderBy(sort_by, order)
+    .limit(limit)
+    .offset(limit * page - limit)
     .then(comments => {
       if (!comments.length) {
         return knex('articles')

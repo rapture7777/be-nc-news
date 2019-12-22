@@ -318,6 +318,15 @@ describe('/api', () => {
             expect(comments).to.deep.equal([]);
           });
       });
+      it('status: 200 accepts limit and page queries, limit defaults to 10, page to 1', () => {
+        return request(app)
+          .get('/api/articles/1/comments?limit=2&page=2')
+          .expect(200)
+          .then(({ body: { comments } }) => {
+            expect(comments).to.be.an('array');
+            expect(comments.length).to.equal(2);
+          });
+      });
       it('status: 400 invalid article_id', () => {
         return request(app)
           .get('/api/articles/abc/comments')
