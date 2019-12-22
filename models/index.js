@@ -85,10 +85,12 @@ exports.fetchComments = (
 exports.fetchArticles = ({
   sort_by = 'created_at',
   order = 'desc',
+  limit = 10,
+  page = 1,
   author,
   topic
 }) => {
-  return knex('articles')
+  let fullArticles = knex('articles')
     .select(
       'articles.author',
       'articles.title',
@@ -114,6 +116,36 @@ exports.fetchArticles = ({
               'Query value does not exist or no articles exist for specified query...'
           });
     });
+
+  let limitedArticles = knex('articles')
+    .select(
+      'articles.author',
+      'articles.title',
+      'articles.article_id',
+      'articles.topic',
+      'articles.created_at',
+      'articles.votes'
+    )
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .groupBy('articles.article_id')
+    .count({ comment_count: 'comments.article_id' })
+    .orderBy(`articles.${sort_by}`, order)
+    .limit(limit)
+    .offset(limit * page - limit)
+    .modify(articles => {
+      if (topic) articles.where('topic', topic);
+      if (author) articles.where('articles.author', author);
+    })
+    .then(articles => {
+      return articles.length
+        ? articles
+        : Promise.reject({
+            status: 404,
+            msg:
+              'Query value does not exist or no articles exist for specified query...'
+          });
+    });
+  return Promise.all([fullArticles, limitedArticles]);
 };
 
 exports.updateComment = ({ comment_id }, { inc_votes }) => {

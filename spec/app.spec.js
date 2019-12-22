@@ -388,6 +388,26 @@ describe('/api', () => {
             expect(articles[0].author).to.equal('butter_bridge');
           });
       });
+      it('status: 200 accepts limit and page queries, limit defaults to 10', () => {
+        return request(app)
+          .get('/api/articles?limit=2&page=2')
+          .expect(200)
+          .then(({ body: { articles } }) => {
+            expect(articles.length).to.equal(2);
+            expect(articles[0].title).to.equal(
+              'Eight pug gifs that remind me of mitch'
+            );
+          });
+      });
+      it('status: 200 adds a total_count key within the returned articles object', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles.length).to.equal(10);
+            expect(body.total_count).to.equal(12);
+          });
+      });
       it('status: 400 invalid query value', () => {
         return request(app)
           .get('/api/articles?sort_by=happy')

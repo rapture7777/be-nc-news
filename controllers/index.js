@@ -62,7 +62,9 @@ exports.getComments = (req, res, next) => {
 exports.getArticles = (req, res, next) => {
   fetchArticles(req.query)
     .then(articles => {
-      res.status(200).send({ articles });
+      res
+        .status(200)
+        .send({ articles: articles[1], total_count: articles[0].length });
     })
     .catch(next);
 };
