@@ -1,9 +1,7 @@
 const knex = require('../db/connection');
 
 exports.fetchTopics = () => {
-  return knex('topics')
-    .select('slug', 'description')
-    .then(topics => topics);
+  return knex('topics').select('slug', 'description');
 };
 
 exports.fetchUser = ({ username }) => {
@@ -15,6 +13,10 @@ exports.fetchUser = ({ username }) => {
         return Promise.reject({ status: 404, msg: 'User not found...' });
       else return user[0];
     });
+};
+
+exports.fetchUsers = () => {
+  return knex('users').select('*');
 };
 
 exports.fetchArticle = ({ article_id }) => {

@@ -68,8 +68,19 @@ describe('/api', () => {
         return request(app)
           .post('/api/topics')
           .send({
+            slug: 123
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+      it('status: 400 slug is not unique', () => {
+        return request(app)
+          .post('/api/topics')
+          .send({
             slug: 'mitch',
-            description: 123
+            description: 'xyz'
           })
           .expect(400)
           .then(({ body: { msg } }) => {
@@ -83,6 +94,33 @@ describe('/api', () => {
         const promises = methods.map(function(method) {
           return request(app)
             [method]('/api/topics')
+            .expect(405)
+            .then(({ body: { msg } }) => {
+              expect(msg).to.equal('Invalid method...');
+            });
+        });
+        return Promise.all(promises);
+      });
+    });
+  });
+  describe('/users', () => {
+    describe('GET', () => {
+      it('status 200: returns an array of all users', () => {
+        return request(app)
+          .get('/api/users')
+          .expect(200)
+          .then(({ body: { users } }) => {
+            expect(users).to.be.an('array');
+            expect(users.length).equal(4);
+          });
+      });
+    });
+    describe('INVALID METHODS', () => {
+      it('status: 405 invalid method used', () => {
+        const methods = ['patch', 'put', 'delete'];
+        const promises = methods.map(function(method) {
+          return request(app)
+            [method]('/api/users')
             .expect(405)
             .then(({ body: { msg } }) => {
               expect(msg).to.equal('Invalid method...');

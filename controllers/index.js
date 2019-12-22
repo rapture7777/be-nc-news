@@ -1,6 +1,7 @@
 const {
   fetchTopics,
   fetchUser,
+  fetchUsers,
   fetchArticle,
   updateArticle,
   createComment,
@@ -26,6 +27,14 @@ exports.getUser = (req, res, next) => {
   fetchUser(req.params)
     .then(user => {
       res.status(200).send({ user });
+    })
+    .catch(next);
+};
+
+exports.getUsers = (req, res, next) => {
+  fetchUsers()
+    .then(users => {
+      res.status(200).send({ users });
     })
     .catch(next);
 };
