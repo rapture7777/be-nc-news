@@ -115,6 +115,48 @@ describe('/api', () => {
           });
       });
     });
+    describe('POST', () => {
+      it('status: 201 adds a user to the users table', () => {
+        return request(app)
+          .post('/api/users')
+          .send({
+            username: 'test123',
+            avatar_url: 'test.url',
+            name: 'test person'
+          })
+          .expect(201)
+          .then(({ body: { user } }) => {
+            expect(user).to.be.an('object');
+            expect(user).to.have.keys('username', 'avatar_url', 'name');
+            expect(user.username).to.equal('test123');
+          });
+      });
+      it('status: 400 request body is incorrectly formatted', () => {
+        return request(app)
+          .post('/api/users')
+          .send({
+            username: 123,
+            avatar_url: '.com'
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+      it('status: 400 username is not unique', () => {
+        return request(app)
+          .post('/api/users')
+          .send({
+            username: 'butter_bridge',
+            avatar_url: '.com',
+            name: 'mitch'
+          })
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).to.equal('Bad request...');
+          });
+      });
+    });
     describe('INVALID METHODS', () => {
       it('status: 405 invalid method used', () => {
         const methods = ['patch', 'put', 'delete'];

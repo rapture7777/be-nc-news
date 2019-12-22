@@ -19,6 +19,13 @@ exports.fetchUsers = () => {
   return knex('users').select('*');
 };
 
+exports.createUser = user => {
+  return knex('users')
+    .insert(user)
+    .returning('*')
+    .then(user => user[0]);
+};
+
 exports.fetchArticle = ({ article_id }) => {
   return knex('articles')
     .select('articles.*')
