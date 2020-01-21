@@ -503,6 +503,7 @@ describe('/api', () => {
               'title',
               'article_id',
               'topic',
+              'body',
               'created_at',
               'votes',
               'comment_count'
@@ -511,11 +512,11 @@ describe('/api', () => {
       });
       it('status: 200 accepts sort_by and orders queries which default to date and desc respectively', () => {
         return request(app)
-          .get('/api/articles?sort_by=author&order=asc')
+          .get('/api/articles?sort_by=comment_count&order=asc')
           .expect(200)
           .then(({ body: { articles } }) => {
             expect(articles).to.be.an('array');
-            expect(articles).to.be.ascendingBy('author');
+            expect(articles).to.be.ascendingBy('comment_count');
           });
       });
       it('status: 200 accepts author and topic queries which filter the articles', () => {

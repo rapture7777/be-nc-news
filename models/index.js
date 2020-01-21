@@ -50,10 +50,10 @@ exports.fetchArticles = ({
 }) => {
   let fullArticles = knex('articles')
     .select('articles.*')
-    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
-    .groupBy('articles.article_id')
-    .orderBy(`articles.${sort_by}`, order)
     .count({ comment_count: 'comments.article_id' })
+    .leftJoin('comments', 'articles.article_id', 'comments.article_id')
+    .orderBy(sort_by, order)
+    .groupBy('articles.article_id')
     .modify(articles => {
       if (topic) articles.where('topic', topic);
       if (author) articles.where('articles.author', author);
@@ -69,18 +69,11 @@ exports.fetchArticles = ({
     });
 
   let limitedArticles = knex('articles')
-    .select(
-      'articles.author',
-      'articles.title',
-      'articles.article_id',
-      'articles.topic',
-      'articles.created_at',
-      'articles.votes'
-    )
+    .select('articles.*')
     .leftJoin('comments', 'articles.article_id', 'comments.article_id')
     .groupBy('articles.article_id')
     .count({ comment_count: 'comments.article_id' })
-    .orderBy(`articles.${sort_by}`, order)
+    .orderBy(sort_by, order)
     .limit(limit)
     .offset(limit * page - limit)
     .modify(articles => {
