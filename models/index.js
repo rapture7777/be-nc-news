@@ -115,13 +115,14 @@ exports.createArticle = article => {
 
 exports.removeArticle = ({ article_id }) => {
   return knex('articles')
-    .delete()
     .where('article_id', article_id)
-    .then(deleteCount => {
-      if (deleteCount === 0)
-        return Promise.reject({ status: 404, msg: 'Article not found...' });
-      else return deleteCount;
-    });
+    .del();
+  // BUG: Only returns 0 even on successful delete
+  // .then(deleteCount => {
+  //   if (deleteCount === 0)
+  //     return Promise.reject({ status: 404, msg: 'Article not found...' });
+  //   else return deleteCount;
+  // });
 };
 
 exports.createComment = ({ article_id }, comment) => {
